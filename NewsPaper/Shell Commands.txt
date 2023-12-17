@@ -1,0 +1,71 @@
+python manage.py shell
+from news_portal.models import *
+
+Создаем пользователя
+u1 = User.objects.create_user('Андрей')
+u2 = User.objects.create_user('Максим')
+
+Создаем автора
+a1 = Author.objects.create(users=u1)
+a2 = Author.objects.create(users=u2)
+
+Создаем категорию
+cat1 = Category.objects.create(name='Политика')
+cat2 = Category.objects.create(name='Спорт')
+cat3 = Category.objects.create(name='Экономика')
+cat4 = Category.objects.create(name='Проишествия')
+
+Создаем пост
+p1 = Post.objects.create(author=a1, title='Заголовок', type= 'NE', text= 'Содержание новости')
+p2 = Post.objects.create(author=a2, title='Заголовок2', type= 'NE', text= 'Содержание новости2')
+
+Создаем новость
+p3 = Post.objects.create(author=a2, title='Заголовок3', type= 'NW', text= 'Содержание новости3')
+
+Привязываем пост к категории
+p1.category.add(cat1)
+p2.category.add(cat2)
+p3.category.add(cat3)
+
+
+Создаем комментарий
+с1 = Comment.objects.create(user=u1, post=p1, text= 'комментарий1')
+с2 = Comment.objects.create(user=u2, post=p2, text= 'комментарий2')
+с3 = Comment.objects.create(user=u1, post=p2, text= 'комментарий3')
+с4 = Comment.objects.create(user=u2, post=p3, text= 'комментарий4')
+
+Добавляем рейтинг поста
+p1 = Post.objects.get(pk=1)
+c1 = Comment.objects.get(pk=1)
+p1.like()
+c1.dislike()
+
+Обновляем рейтинги пользователей
+a1 = Author.objects.get(pk=1)
+a1.update_rating()
+a2 = Author.objects.get(pk=2)
+a2.update_rating()
+
+Получаем список авторов отсортированных по убыванию рейтинга
+authors = Author.objects.order_by('-user_rating')
+
+Получаем только поля имени пользователя и рейтинга всех полученных ранее объектов
+authors_values = authors.values('users__username', 'user_rating')
+
+Выводим значения имени пользователя и рейтинга лучшего по рейтингу автора
+best_author = authors_values.first()
+
+Смотрим лучшего пользователя
+best_author
+
+Выводим дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье
+posts = Post.objects.order_by('-rating')
+best_post = posts.values('time_in', 'author__users__username', 'rating', 'title').first()
+best_preview = posts.first().preview()
+best_post
+best_preview
+
+Выводим все комментарии (дата, пользователь, рейтинг, текст) к этой статье
+best_post= Post.objects.order_by('-rating').first()
+comments_best_post = Comment.objects.filter(post=best_post).values('time_in', 'user__username', 'text')
+comments_best_post
