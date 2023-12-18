@@ -14,6 +14,15 @@ class NewsList(ListView):
     ordering = '-time_in'
     paginate_by = 5
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset=queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
 
 class NewsDetail(DetailView):
     model = Post
@@ -23,21 +32,10 @@ class NewsDetail(DetailView):
 
 class NewsCreate(CreateView):
     model = Post
+    form_class = PostForm
     template_name = 'post_create.html'
     context_object_name = 'posts'
-    ordering = '-time_in'
-    paginate_by = 5
 
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        self.filterset = PostFilter(self.reguest.GET, queryset=queryset)
-        return self.filterset.qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['filterset'] = self.filterset
-        return context
 class NewsUpdate(UpdateView):
     model = Post
     form_class = PostForm
