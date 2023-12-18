@@ -4,6 +4,12 @@
 
 
 {% block content %}
+
+<form action="" method="get">
+    {{ filterset.form.as_p }}
+        <input type='submit' value="Найти">
+    </form>
+
     {% if posts %}
         <h2>Количество постов: {{ posts|length }}</h2>
         <table width="70%" style="margin-top: 35px">
